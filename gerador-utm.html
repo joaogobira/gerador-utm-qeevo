@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de UTM Universal - Renascimento Financeiro</title>
+    <!-- Carregamento do Tailwind CSS para estilização rápida e responsiva -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Define a fonte Inter como padrão */
+        body { font-family: "Inter", sans-serif; }
+        /* Estilos específicos para campos obrigatórios */
+        .required::after { content: " *"; color: #ef4444; margin-left: 2px; }
+        /* Garante que o texto dentro das células não quebre o layout */
+        .break-all { word-break: break-all; }
+        /* Estilo para a célula que contém o link completo */
+        .link-cell { max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-start justify-center p-4 sm:p-8">
+
+    <div class="w-full max-w-5xl">
+        
+        <div class="max-w-lg mx-auto bg-white p-6 sm:p-8 rounded-xl shadow-2xl border border-gray-100 mb-8">
+            <!-- Cabeçalho -->
+            <h1 class="text-3xl font-extrabold text-gray-800 mb-2">🔗 Gerador de UTM Universal</h1>
+            <p class="text-gray-500 mb-6">Parametrize seus links para qualquer canal de marketing. Otimizado para o Renascimento Financeiro.</p>
+
+            <!-- Seção de Projeto -->
+            <div class="mb-6 pb-4 border-b border-gray-200">
+                <label for="project_name" class="required block text-sm font-medium text-gray-700">Nome do Projeto (Para Salvar o Histórico)</label>
+                <input type="text" id="project_name" value="Renascimento_Financeiro" onchange="initApp()" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out font-semibold">
+                <p class="text-xs text-gray-500 mt-1">Altere o nome para criar um novo projeto ou carregar um existente.</p>
+            </div>
+
+            <!-- Formulário de Geração -->
+            <div class="space-y-4">
+                
+                <!-- URL de Destino -->
+                <div>
+                    <label for="url" class="required block text-sm font-medium text-gray-700">URL de Destino (Landing Page)</label>
+                    <input type="url" id="url" placeholder="https://..." required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
+                </div>
+
+                <!-- UTM Source & Medium Selector -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="source_select" class="block text-sm font-medium text-gray-700">Sugestão de Canal (Source/Medium)</label>
+                        <select id="source_select" onchange="applySourceMedium(); autoGenerateCampaignName();" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="">-- Escolha um Canal --</option>
+                            <option value="meta|cpc">Meta Ads (Facebook/Instagram Pago)</option>
+                            <option value="google|cpc">Google Ads (Busca/Display)</option>
+                            <option value="google|pmax">Google Ads (Performance Max - PMax)</option>
+                            <option value="youtube|cpc">YouTube Ads (Pago - Campanhas de Vídeo)</option>
+                            <option value="bio|social">Link da Bio (Instagram/TikTok)</option>
+                            <option value="whatsapp|social">WhatsApp (Orgânico)</option>
+                            <option value="telegram|social">Telegram (Orgânico)</option>
+                            <option value="youtube|social">YouTube (Descrição de Vídeo - Orgânico)</option>
+                            <option value="email|nutricao">E-mail Marketing (Nutrição/Campanha)</option>
+                            <option value="email|recuperacao">E-mail Marketing (Recuperação/Abandono)</option>
+                            <option value="api_oficial|lead">API Oficial (Captação/Leads)</option>
+                            <option value="api_oficial|recuperacao">API Oficial (Recuperação/Abandono)</option>
+                            <option value="sms|mobile">SMS/Mobile</option>
+                            <option value="afiliado|afiliados">Programa de Afiliados</option>
+                            <option value="parceiro|referral">Banners/Parceiros</option>
+                            <option value="querobolsa|referral">Quero Bolsa</option>
+                            <option value="organico|seo">Busca Orgânica (Apenas para Teste)</option>
+                        </select>
+                    </div>
+
+                    <!-- UTM Source -->
+                    <div>
+                        <label for="source" class="required block text-sm font-medium text-gray-700">UTM Source</label>
+                        <input type="text" id="source" placeholder="meta" required oninput="autoGenerateCampaignName()" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
+                    </div>
+                </div>
+
+                <!-- UTM Medium -->
+                <div>
+                    <label for="medium" class="required block text-sm font-medium text-gray-700">UTM Medium</label>
+                    <input type="text" id="medium" placeholder="cpc" required oninput="autoGenerateCampaignName()" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
+                    <p class="text-xs text-gray-500 mt-1">Ex: cpc, pmax, social, email, referral.</p>
+                </div>
+
+                <!-- BLOCO: Geração Automática de Campanha -->
+                <div class="space-y-4 border-t pt-4 mt-4 border-gray-200">
+                    <h3 class="text-xl font-semibold text-gray-700">⚙️ Sugestão de Nomenclatura</h3>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <!-- Campaign Objective/Moment -->
+                        <div>
+                            <label for="campaign_objective" class="required block text-sm font-medium text-gray-700">1. Objetivo Principal</label>
+                            <select id="campaign_objective" onchange="autoGenerateCampaignName()" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                <option value="">-- Objetivo --</option>
+                                <option value="CONV">Vendas (Conversão)</option>
+                                <option value="RECU">Recuperação de Carrinho</option>
+                                <option value="LEAD">Captação (Leads)</option>
+                                <option value="ENG">Engajamento/Tráfego</option>
+                            </select>
+                        </div>
+
+                        <!-- Funnel Stage -->
+                        <div>
+                            <label for="funnel_stage" class="required block text-sm font-medium text-gray-700">2. Fase do Público</label>
+                            <select id="funnel_stage" onchange="autoGenerateCampaignName()" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                <option value="">-- Fase --</option>
+                                <option value="FRIO">Frio (Aquisição)</option>
+                                <option value="MORNO">Morno (Engajamento)</option>
+                                <option value="QUENTE">Quente (Base Fiel/Retenção)</option>
+                            </select>
+                        </div>
+
+                        <!-- Product Identifier -->
+                        <div>
+                            <label for="product_id" class="required block text-sm font-medium text-gray-700">3. ID Produto</label>
+                            <input type="text" id="product_id" value="RNF" oninput="autoGenerateCampaignName()" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
+                        </div>
+                    </div>
+
+                    <p class="text-xs text-gray-500">A nomenclatura da Campanha (UTM Campaign) será gerada com a estrutura: `OBJETIVO_FASE_IDPRODUTO_ESTRATEGIA`.</p>
+                </div>
+
+
+                <!-- UTM Campaign (Nome da Campanha) - Campo de Saída/Edição -->
+                <div>
+                    <label for="campaign" class="required block text-sm font-medium text-gray-700">UTM Campaign (Nome da Campanha/Ação)</label>
+                    <input type="text" id="campaign" placeholder="Ex: CONV_FRIO_RNF_ADVPLUS ou PROMO_NATAL" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm font-bold text-lg focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
+                </div>
+
+                <!-- UTM Content (Criativo/Anúncio/Link Específico) -->
+                <div>
+                    <label for="content" class="block text-sm font-medium text-gray-700">UTM Content (Criativo/Anúncio/Link Específico)</label>
+                    <input type="text" id="content" placeholder="Ex: video_15s_barbara ou post_blog_renda" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
+                </div>
+
+                <!-- Botão de Geração -->
+                <button onclick="generateUTM()" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-lg text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
+                    Gerar e Adicionar Link à Tabela
+                </button>
+            </div>
+        </div>
+
+        <!-- Histórico de Links Gerados -->
+        <div id="results-history-container" class="mt-10 hidden">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">📜 Histórico e Detalhes dos Links Gerados</h2>
+            
+            <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                <button onclick="exportToCSV()" class="flex-grow py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 transition duration-150 ease-in-out">
+                    Exportar para CSV (Google Sheets)
+                </button>
+                <button onclick="clearCurrentProject()" class="flex-grow py-2 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-red-50 hover:text-red-600 transition duration-150 ease-in-out">
+                    Limpar Projeto Atual
+                </button>
+            </div>
+            
+            <!-- Tabela Estática de Explicação dos Parâmetros -->
+            <div class="mb-6 overflow-x-auto">
+                <h3 class="text-lg font-semibold text-gray-700 mb-2">Entendendo os Parâmetros UTM</h3>
+                <table class="min-w-full divide-y divide-gray-200 bg-white rounded-lg shadow-md">
+                    <thead>
+                        <tr>
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/5">Parâmetro</th>
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-4/5">Função</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">`utm_source`</td>
+                            <td class="px-3 py-2 text-sm text-gray-500">Onde o clique se originou (ex: `meta`, `google`).</td>
+                        </tr>
+                        <tr>
+                            <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">`utm_medium`</td>
+                            <td class="px-3 py-2 text-sm text-gray-500">Tipo de canal/campanha (ex: `cpc`, `social`, `email`).</td>
+                        </tr>
+                        <tr>
+                            <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">`utm_campaign`</td>
+                            <td class="px-3 py-2 text-sm text-gray-500">Nome específico da campanha (ex: `CONV_FRIO_RNF_ADVPLUS`).</td>
+                        </tr>
+                        <tr>
+                            <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">`utm_content`</td>
+                            <td class="px-3 py-2 text-sm text-gray-500">Diferencia anúncios/criativos dentro da campanha (ex: `video_a`, `imagem_b`).</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Tabela de Resultados Dinâmicos -->
+            <div class="overflow-x-auto shadow-xl rounded-lg border border-gray-200">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-indigo-600">
+                        <tr>
+                            <th class="px-3 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Link Completo</th>
+                            <th class="px-3 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Source</th>
+                            <th class="px-3 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Medium</th>
+                            <th class="px-3 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Campaign</th>
+                            <th class="px-3 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Content</th>
+                            <th class="px-3 py-3 text-center text-xs font-bold text-white uppercase tracking-wider">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="results_table_body" class="bg-white divide-y divide-gray-200">
+                        <!-- Linhas serão inseridas aqui pelo JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            <p id="copy-success-message" class="mt-4 text-center text-green-600 font-semibold hidden">Link copiado com sucesso!</p>
+        </div>
+    </div>
+
+    <script>
+        let projectLinks = []; // Array global para armazenar os dados do projeto
+
+        // --- FUNÇÕES DE PERSISTÊNCIA (localStorage) ---
+        function getProjectName() {
+            return document.getElementById('project_name').value.trim();
+        }
+
+        function saveProjectData() {
+            const projectName = getProjectName();
+            if (!projectName) return;
+            try {
+                localStorage.setItem(`utm_project_${projectName}`, JSON.stringify(projectLinks));
+            } catch (e) {
+                console.error("Não foi possível salvar os dados no Local Storage:", e);
+            }
+        }
+
+        function loadProjectData() {
+            const projectName = getProjectName();
+            if (!projectName) return [];
+            try {
+                const storedData = localStorage.getItem(`utm_project_${projectName}`);
+                if (storedData) {
+                    return JSON.parse(storedData);
+                }
+            } catch (e) {
+                // Caso os dados estejam corrompidos, retorna array vazio para não quebrar.
+                console.error("Não foi possível carregar/analisar os dados do Local Storage. Limpando histórico.", e);
+                return [];
+            }
+            return [];
+        }
+
+        function renderTable() {
+            const tableBody = document.getElementById('results_table_body');
+            tableBody.innerHTML = ''; // Limpa a tabela atual
+
+            if (projectLinks.length > 0) {
+                document.getElementById('results-history-container').classList.remove('hidden');
+            } else {
+                document.getElementById('results-history-container').classList.add('hidden');
+            }
+
+            // Renderiza os links do mais recente para o mais antigo (topo da tabela)
+            projectLinks.slice().reverse().forEach(data => {
+                appendResultToTable(data.fullUrl, data.params, false); // 'false' para não salvar novamente
+            });
+        }
+
+        function clearCurrentProject() {
+            if (confirm(`Tem certeza que deseja limpar todo o histórico do projeto "${getProjectName()}"?`)) {
+                const projectName = getProjectName();
+                localStorage.removeItem(`utm_project_${projectName}`);
+                projectLinks = [];
+                renderTable();
+            }
+        }
+        
+        function initApp() {
+            // Recarrega o array de links do projeto atual
+            projectLinks = loadProjectData();
+            // Renderiza a tabela com os dados carregados
+            renderTable();
+        }
+
+        // --- FUNÇÕES DE GERAÇÃO E UI ---
+
+        // Função para formatar valores UTM (minúsculo e _ no lugar de espaço)
+        const formatUtmValue = (value) => encodeURIComponent(value.toLowerCase().replace(/\s/g, '_'));
+
+        function applySourceMedium() {
+            const select = document.getElementById('source_select');
+            const [source, medium] = select.value.split('|');
+
+            document.getElementById('source').value = source || '';
+            document.getElementById('medium').value = medium || '';
+        }
+        
+        function autoGenerateCampaignName() {
+            const objective = document.getElementById('campaign_objective').value.trim(); 
+            const stage = document.getElementById('funnel_stage').value.trim();
+            const productId = document.getElementById('product_id').value.trim();
+            const medium = document.getElementById('medium').value.trim().toUpperCase();
+            const source = document.getElementById('source').value.trim().toLowerCase();
+            const campaignInput = document.getElementById('campaign');
+            
+            if (objective && stage && productId) { 
+                let generatedName = `${objective}_${stage}_${productId}`;
+
+                // Adiciona Sugestão de Estratégia/Público Específico (Se for campanha paga)
+                if (medium === 'CPC' || medium === 'PMAX') {
+                    if (stage === 'FRIO' && source === 'meta') {
+                        generatedName += '_ADVPLUS'; 
+                    } else if (stage === 'QUENTE') { // AQUI é onde mudamos de 'REMARK' para 'QUENTE'
+                        generatedName += '_VIEWPAGE_EXCL_COMPRA'; 
+                    } else if (stage === 'MORNO') {
+                        generatedName += '_ENG12M';
+                    }
+                }
+                
+                campaignInput.value = generatedName;
+            } else {
+                campaignInput.value = '';
+                campaignInput.placeholder = "Ex: CONV_FRIO_RNF_ADVPLUS ou PROMO_NATAL";
+            }
+        }
+
+        function generateUTM() {
+            const url = document.getElementById('url').value.trim();
+            const source = document.getElementById('source').value.trim();
+            const medium = document.getElementById('medium').value.trim();
+            const campaign = document.getElementById('campaign').value.trim();
+            const content = document.getElementById('content').value.trim();
+            
+            // Validação
+            if (!url || !source || !medium || !campaign) {
+                console.error('ERRO: Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+
+            let utmParams = [];
+            
+            // Cria o objeto de parâmetros formatados para a URL
+            const formattedSource = formatUtmValue(source);
+            const formattedMedium = formatUtmValue(medium);
+            const formattedCampaign = formatUtmValue(campaign);
+            const formattedContent = content ? formatUtmValue(content) : '';
+
+            // Adiciona parâmetros à lista da URL
+            utmParams.push(`utm_source=${formattedSource}`);
+            utmParams.push(`utm_medium=${formattedMedium}`);
+            utmParams.push(`utm_campaign=${formattedCampaign}`); 
+
+            if (content) {
+                utmParams.push(`utm_content=${formattedContent}`);
+            }
+            
+            const separator = url.includes('?') ? '&' : '?';
+            const finalUrl = url + separator + utmParams.join('&');
+
+            const newLinkData = {
+                fullUrl: finalUrl,
+                params: {
+                    url: url,
+                    source: source,
+                    medium: medium,
+                    campaign: campaign,
+                    content: content
+                }
+            };
+            
+            // Adiciona o novo link ao array global e salva
+            projectLinks.push(newLinkData);
+            saveProjectData();
+            
+            // Renderiza a tabela novamente (para mostrar o novo link no topo)
+            renderTable();
+
+            // Limpa o campo de Content para o próximo link
+            document.getElementById('content').value = '';
+        }
+
+        function appendResultToTable(fullUrl, params, save=true) {
+            const tableBody = document.getElementById('results_table_body');
+            const newRow = tableBody.insertRow(0); // Insere no topo
+
+            newRow.className = 'hover:bg-gray-50';
+            
+            // Célula 1: Link Completo (Index 0)
+            const linkCell = newRow.insertCell(0);
+            linkCell.className = 'px-3 py-2 text-sm font-medium text-gray-900 break-all';
+            linkCell.innerHTML = `<span class="break-all text-indigo-700">${fullUrl}</span>`;
+            linkCell.setAttribute('data-full-url', fullUrl);
+
+            // Células 2-5: Parâmetros (Source, Medium, Campaign, Content)
+            const paramsToDisplay = [params.source, params.medium, params.campaign, params.content];
+            
+            paramsToDisplay.forEach((param, index) => {
+                const cell = newRow.insertCell(index + 1); // Índices 1, 2, 3, 4
+                cell.className = 'px-3 py-2 whitespace-nowrap text-sm text-gray-600';
+                cell.textContent = param;
+            });
+
+            // Célula 6: Botão de Ações (Índice 5)
+            const actionCell = newRow.insertCell(5); 
+            actionCell.className = 'px-3 py-2 text-center whitespace-nowrap text-sm font-medium';
+            actionCell.innerHTML = `
+                <button onclick="copySpecificLink(this)" data-url="${fullUrl}" class="px-3 py-1 bg-indigo-500 text-white text-xs rounded-md hover:bg-indigo-600 transition duration-150 ease-in-out">
+                    Copiar
+                </button>
+            `;
+        }
+
+        function copySpecificLink(buttonElement) {
+            const urlToCopy = buttonElement.getAttribute('data-url');
+            const copyMessage = document.getElementById('copy-success-message');
+            
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(urlToCopy).then(() => {
+                    displayCopyMessage(copyMessage);
+                }).catch(err => {
+                    fallbackCopy(urlToCopy, copyMessage);
+                });
+            } else {
+                fallbackCopy(urlToCopy, copyMessage);
+            }
+        }
+
+        function displayCopyMessage(element) {
+            element.classList.remove('hidden');
+            setTimeout(() => {
+                element.classList.add('hidden');
+            }, 3000);
+        }
+
+        function fallbackCopy(text, messageElement) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed'; 
+            textarea.style.left = '-9999px'; 
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                displayCopyMessage(messageElement);
+            } catch (err) {
+                 // Falha silenciosa
+            } finally {
+                document.body.removeChild(textarea);
+            }
+        }
+
+        function exportToCSV() {
+            if (projectLinks.length === 0) {
+                console.warn("Não há links para exportar.");
+                return;
+            }
+
+            const header = ["URL de Destino", "Link Completo", "utm_source", "utm_medium", "utm_campaign", "utm_content"];
+            let csv = header.join(";") + "\n";
+
+            projectLinks.forEach(item => {
+                const row = [
+                    `"${item.params.url}"`, // URL base
+                    `"${item.fullUrl}"`, // Link completo
+                    `"${item.params.source}"`,
+                    `"${item.params.medium}"`,
+                    `"${item.params.campaign}"`,
+                    `"${item.params.content || ''}"`
+                ];
+                csv += row.join(";") + "\n";
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute("href", url);
+            link.setAttribute("download", `${getProjectName()}_UTM_links.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Inicializa o aplicativo ao carregar a página
+        window.onload = initApp;
+    </script>
+</body>
+</html>
